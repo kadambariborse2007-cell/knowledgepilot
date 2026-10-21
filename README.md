@@ -4,7 +4,7 @@
 
 > KnowledgePilot uses Retrieval-Augmented Generation (RAG) to **reduce hallucination**. It is not 100% accurate. Every answer can be checked against its sources.
 
-**Live demo:** _frontend URL_ · **API:** _backend URL_ (free Render server: the first request after a while can take ~1 minute while it wakes up)
+**Live demo:** https://knowledgepilot.vercel.app · **API:** https://knowledgepilot-api.onrender.com/api/health/ (free Render server: the first request after a while can take ~1 minute while it wakes up)
 
 ---
 

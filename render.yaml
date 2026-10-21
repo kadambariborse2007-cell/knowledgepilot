@@ -6,10 +6,13 @@ services:
     rootDir: backend
     buildCommand: ./build.sh
     startCommand: python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 300
-    healthCheckPath: /api/health/
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.8
+      - key: MALLOC_ARENA_MAX
+        value: "2"
+      - key: OMP_NUM_THREADS
+        value: "1"
       - key: GEMINI_API_KEY
         sync: false
       - key: GEMINI_MODEL
