@@ -53,7 +53,9 @@ function Message({ message }) {
     <div className="msg assistant">
       <Warnings warnings={message.warnings} />
       <div className={`answer ${notFound ? "not-found" : ""}`}>
-        {message.content ? renderAnswer(message.content, showSource) : <span className="typing">Thinking…</span>}
+        {message.content
+          ? renderAnswer(message.content, showSource)
+          : message.streaming && !message.error && <span className="typing">Thinking…</span>}
         {message.streaming && message.content && <span className="cursor">▍</span>}
       </div>
       {message.error && <div className="alert error">{message.error}</div>}
