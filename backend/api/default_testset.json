@@ -1,0 +1,22 @@
+[
+  {
+    "question": "What is the hybrid search in KnowledgePilot made of?",
+    "ground_truth": "It combines BM25 keyword search with vector (semantic) search, fuses the results with Reciprocal Rank Fusion and reranks them with a cross-encoder."
+  },
+  {
+    "question": "Which embedding model does KnowledgePilot use?",
+    "ground_truth": "It uses the all-MiniLM-L6-v2 sentence-transformers model, running locally."
+  },
+  {
+    "question": "What happens to document chunks that contain prompt injection?",
+    "ground_truth": "They are flagged at upload time, a warning is shown in the UI, and they are kept out of the LLM prompt."
+  },
+  {
+    "question": "What does the system reply when the answer is not in the documents?",
+    "ground_truth": "It replies 'Answer not found in the documents.'"
+  },
+  {
+    "question": "How is the whole-document summary generated?",
+    "ground_truth": "With map-reduce: each section is summarised separately (map) and the partial summaries are then combined into one summary (reduce)."
+  }
+]

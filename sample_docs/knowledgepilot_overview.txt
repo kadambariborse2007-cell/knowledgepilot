@@ -1,0 +1,21 @@
+KnowledgePilot AI - Project Overview
+
+KnowledgePilot AI is a secure, evidence-grounded document research assistant. Users upload PDF or TXT files and ask questions in natural language. The system answers only from the uploaded content using Retrieval-Augmented Generation (RAG), and every answer shows the source file name, the page number and the exact source text so it can be verified.
+
+Ingestion pipeline
+When a file is uploaded, the text is extracted page by page with pypdf so that page numbers are preserved. The text is split into overlapping chunks of about 900 characters. Each chunk is converted into a vector using the all-MiniLM-L6-v2 sentence-transformers embedding model, which runs locally on the server. The vectors are stored in the Chroma vector database together with the file name and page number.
+
+Hybrid search
+Retrieval uses hybrid search. BM25 keyword search finds chunks that share exact words with the question, and vector search finds chunks with similar meaning. The two result lists are merged with Reciprocal Rank Fusion (RRF). Finally a cross-encoder reranker (ms-marco-MiniLM-L-6-v2) re-scores the best candidates and the top five chunks are sent to the language model.
+
+Answer generation
+The language model is Google Gemini, used on the free tier. It is instructed to answer only from the numbered sources and to cite them like [1] or [2]. If the documents do not contain the answer, the system replies exactly "Answer not found in the documents." This design reduces hallucination, but it does not make the system 100% accurate; every answer should be checked against its sources.
+
+Prompt injection protection
+Documents can contain text that is written to manipulate the AI model. At upload time every chunk is checked against a list of suspicious patterns. Flagged chunks are kept out of the LLM prompt, and a warning is shown in the user interface.
+
+Summaries
+A whole-document summary is generated with map-reduce: each section of the document is summarised separately (map step) and the partial summaries are then combined into one final summary (reduce step).
+
+Evaluation
+The system is evaluated with RAGAS on a manually prepared test set. Four metrics are reported separately: faithfulness, answer relevancy, context precision and context recall. They are not combined into a single accuracy score.
