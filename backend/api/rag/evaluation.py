@@ -73,7 +73,6 @@ def _ragas_components():
         model=settings.GEMINI_MODEL,
         google_api_key=settings.GEMINI_API_KEY,
         temperature=0,
-        thinking_budget=0,
         max_retries=6,
         rate_limiter=InMemoryRateLimiter(requests_per_second=0.15, check_every_n_seconds=0.5),
     )

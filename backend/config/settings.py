@@ -77,4 +77,7 @@ MAX_UPLOAD_SIZE_MB = 20
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-lite-latest")
+GEMINI_FALLBACK_MODELS = env_list(
+    "GEMINI_FALLBACK_MODELS", "gemini-3.5-flash-lite,gemini-flash-latest"
+)
