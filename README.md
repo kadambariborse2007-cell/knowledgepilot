@@ -61,10 +61,10 @@ flowchart LR
 - **Backend:** Django 6 + Django REST Framework, django-cors-headers, gunicorn
 - **Frontend:** React (Vite), plain `fetch`, no UI library
 - **LLM:** Google Gemini API (free tier, `gemini-flash-lite-latest` by default)
-- **Embeddings:** `sentence-transformers/all-MiniLM-L6-v2`, run locally through **fastembed (ONNX)**. Same model, but without PyTorch, so it fits in Render's 512 MB free plan.
-- **Reranker:** `ms-marco-MiniLM-L-6-v2` cross-encoder (ONNX)
+- **Embeddings:** `sentence-transformers/all-MiniLM-L6-v2` (int8-quantized ONNX export from `Xenova/all-MiniLM-L6-v2`), run locally through **fastembed**. Same model, but without PyTorch, so it fits in Render's 512 MB free plan.
+- **Reranker:** `ms-marco-MiniLM-L-6-v2` cross-encoder (int8-quantized ONNX)
 - **Vector DB:** Chroma · **Keyword search:** rank-bm25 · **PDF parsing:** pypdf
-- **Evaluation:** RAGAS (Gemini as judge, local embeddings)
+- **Evaluation:** RAGAS (Gemini as judge, `gemini-embedding-001` for answer relevancy). While an evaluation runs, chat/upload/summary are paused so everything fits in 512 MB RAM.
 
 ## Project structure
 

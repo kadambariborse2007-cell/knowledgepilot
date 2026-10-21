@@ -5,6 +5,8 @@ faithfulness, answer relevancy, context precision and context recall.
 """
 import json
 import math
+import os
+import signal
 import threading
 import traceback
 from datetime import datetime, timezone
@@ -46,28 +48,19 @@ def load_results():
     return None
 
 
+def is_running() -> bool:
+    return _state["running"]
+
+
 def status() -> dict:
     return {**_state, "results": load_results()}
 
 
 def _ragas_components():
     from langchain_core.rate_limiters import InMemoryRateLimiter
-    from langchain_google_genai import ChatGoogleGenerativeAI
-    from ragas.embeddings import BaseRagasEmbeddings
+    from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+    from ragas.embeddings import LangchainEmbeddingsWrapper
     from ragas.llms import LangchainLLMWrapper
-
-    class LocalEmbeddings(BaseRagasEmbeddings):
-        def embed_query(self, text):
-            return local_models.embed([text])[0]
-
-        def embed_documents(self, texts):
-            return local_models.embed(texts)
-
-        async def aembed_query(self, text):
-            return self.embed_query(text)
-
-        async def aembed_documents(self, texts):
-            return self.embed_documents(texts)
 
     chat = ChatGoogleGenerativeAI(
         model=settings.GEMINI_MODEL,
@@ -76,7 +69,10 @@ def _ragas_components():
         max_retries=6,
         rate_limiter=InMemoryRateLimiter(requests_per_second=0.15, check_every_n_seconds=0.5),
     )
-    return LangchainLLMWrapper(chat), LocalEmbeddings()
+    embeddings = GoogleGenerativeAIEmbeddings(
+        model=settings.GEMINI_EMBEDDING_MODEL, google_api_key=settings.GEMINI_API_KEY
+    )
+    return LangchainLLMWrapper(chat), LangchainEmbeddingsWrapper(embeddings)
 
 
 def _number(value):
@@ -110,6 +106,8 @@ def _run():
             )
 
         _state["progress"] = "Scoring with RAGAS (this can take a few minutes on the free tier)"
+        # Free the local models before loading RAGAS so both fit in 512 MB.
+        local_models.unload()
         llm, embeddings = _ragas_components()
         metrics = [
             Faithfulness(),
@@ -169,6 +167,10 @@ def _run():
         _state["progress"] = "Failed"
     finally:
         _state["running"] = False
+        if settings.RECYCLE_WORKER_AFTER_EVAL:
+            # RAGAS stays in memory after import; restart the gunicorn worker to free it.
+            # Files, chats and results are on disk, so nothing is lost.
+            os.kill(os.getpid(), signal.SIGTERM)
 
 
 def start() -> bool:

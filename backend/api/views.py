@@ -42,6 +42,9 @@ def serialize_message(msg):
     }
 
 
+EVAL_BUSY = {"error": "An evaluation is running on the server. Please try again in a few minutes."}
+
+
 def parse_document_ids(value):
     if not value:
         return None
@@ -57,6 +60,8 @@ def health(request):
 @api_view(["POST"])
 @parser_classes([MultiPartParser])
 def upload(request):
+    if evaluation.is_running():
+        return Response(EVAL_BUSY, status=503)
     files = request.FILES.getlist("files")
     if not files:
         return Response({"error": "No files received. Use the form field 'files'."}, status=400)
@@ -113,6 +118,8 @@ def file_flagged(request, pk):
 @api_view(["POST"])
 @parser_classes([JSONParser])
 def summary(request, pk):
+    if evaluation.is_running():
+        return Response(EVAL_BUSY, status=503)
     doc = Document.objects.filter(pk=pk).first()
     if not doc:
         return Response({"error": "File not found."}, status=404)
@@ -154,6 +161,8 @@ def _event(payload):
 @api_view(["POST"])
 @parser_classes([JSONParser])
 def chat(request):
+    if evaluation.is_running():
+        return Response(EVAL_BUSY, status=503)
     question = str(request.data.get("question", "")).strip()
     if not question:
         return Response({"error": "Please type a question."}, status=400)

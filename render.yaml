@@ -13,6 +13,8 @@ services:
         value: "2"
       - key: OMP_NUM_THREADS
         value: "1"
+      - key: RECYCLE_WORKER_AFTER_EVAL
+        value: "True"
       - key: GEMINI_API_KEY
         sync: false
       - key: GEMINI_MODEL
